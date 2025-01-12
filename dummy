@@ -1,0 +1,47 @@
+package com.example.dm.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.dm.entity.EmpUser;
+import com.example.dm.service.EmpService;
+
+@CrossOrigin("*")
+@RestController
+@RequestMapping("/api")
+public class Controller {
+	
+	@Autowired
+	private EmpService userService;
+	
+	public Controller(EmpService userService) {
+		this.userService=userService;
+	}
+	
+	
+	@GetMapping("/user/{id}")
+	public EmpUser getUser(@PathVariable Long id) {
+		return userService.getUserById(id);
+				
+	}
+	@GetMapping("/getusers")
+	public List<EmpUser> readusers() {
+		return userService.getusers();
+
+	}
+	@PostMapping("/addEmp")
+	public ResponseEntity<EmpUser> addEmp(@RequestBody EmpUser empUser) {
+		EmpUser savedUser=userService.saveUser(empUser);
+		return ResponseEntity.ok(savedUser);
+	}
+
+}
