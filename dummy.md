@@ -1,53 +1,32 @@
-import axios from 'axios';
+import { useState } from 'react'
+import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import HeaderCompnent from './components/HeaderComponent'
+import FooterComponent from './components/FooterComponent'
+import ListEmployeeComponent from './components/ListEmployeeComponent'
+import EmployeeComponent from './components/EmployeeComponent'
+import {BrowserRouter, Routes, Route, Router} from 'react-router-dom'
 
-// Base configuration
-const BASE_URL = 'http://localhost:8080/api';
+function App(){
 
-// API endpoints
-const ENDPOINTS = {
-    LIST_EMPLOYEES: '/user/1',
-    ADD_EMPLOYEE: '/addEmp',
-    GET_EMPLOYEE: '/getusers',
-    UPDATE_EMPLOYEE: '/user/1',
-    DELETE_EMPLOYEE: '/user/1'
-};
+  return(
+    <>    
+    <BrowserRouter>
+    <HeaderCompnent/>
+    <Routes>
+      {/* //http://localhost:8080 */}
+      <Route path='/' element={<ListEmployeeComponent/>}></Route>
+      {/* //http://localhost:8080/employees */}
+      <Route path='/employees' element={<ListEmployeeComponent/>}></Route>
+      {/* //http://localhost:8080/add-employee */}
+      <Route path='/add-employee' element={<EmployeeComponent/>}></Route>
+      {/* //http://localhost:8080/edit-employee/1 */}
+      <Route path='/edit-employee/:id' element={<EmployeeComponent/>}></Route>
+    </Routes>
+    <FooterComponent/>
+    </BrowserRouter>    
+    </>
+  )
+}
 
-// Create axios instance with default config
-const apiClient = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json'
-    }
-});
-
-// Error handling wrapper
-const handleApiError = async (apiCall) => {
-    try {
-        const response = await apiCall();
-        return response;
-    } catch (error) {
-        console.error('API Error:', error.response?.data || error.message);
-        throw error;
-    }
-};
-
-// Employee service methods
-export const listEmployee = () => {
-    return handleApiError(() => apiClient.get(ENDPOINTS.LIST_EMPLOYEES));
-};
-
-export const createEmployee = (employee) => {
-    return handleApiError(() => apiClient.post(ENDPOINTS.ADD_EMPLOYEE, employee));
-};
-
-export const getEmployee = (employeeId) => {
-    return handleApiError(() => apiClient.get(`${ENDPOINTS.GET_EMPLOYEE}/${employeeId}`));
-};
-
-export const updateEmployee = (employeeId, employee) => {
-    return handleApiError(() => apiClient.put(`${ENDPOINTS.UPDATE_EMPLOYEE}/${employeeId}`, employee));
-};
-
-export const deleteEmployee = (employeeId) => {
-    return handleApiError(() => apiClient.delete(`${ENDPOINTS.DELETE_EMPLOYEE}/${employeeId}`));
-};
+export default App
