@@ -1,90 +1,153 @@
-import React, { useEffect, useState } from 'react';
-import { deleteEmployee, getEmployee, listEmployee } from './Employeeservice';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { createEmployee, getEmployee, updateEmployee } from "./Employeeservice";
+import { useNavigate, useParams } from "react-router-dom";
 
-const ListEmployeeComponent = () => {
-    const [employees, setEmployees] = useState([]);
-    const navigate = useNavigate(); // Fixed variable name from navigator to navigate
+const EmployeeComponent=()=>{
 
-    useEffect(() => {
-        getAllEmployees();
-    }, []);
+    const[name, setName]= useState('')
+    const[email, setemail]= useState('')
+    const[phoneNumber, setPhoneNumber]= useState('')
+    const {id}=useParams();
+    const[errors, setErrors]=useState({
+        name:'',
+        email:'',
+        phoneNumber:''
+    })
 
-    function getAllEmployees() {
-        listEmployee()
-            .then((response) => {
-                setEmployees(response.data); // Fixed: using setEmployees instead of getEmployee
-                console.log(response.data);
-            })
-            .catch(error => {
+     useEffect(()=>{
+        if(id){
+                getEmployee(id).then((response)=>{
+                setName(response.data.name)
+                setemail(response.data.email)
+                setPhoneNumber(response.data.phoneNumber)
+                }).catch(error=>{
                 console.error(error);
-            });
-    }
-
-    function addNewEmployee() {
-        navigate('/add-employee');
-    }
-
-    function updateEmployee(id) { // Added id parameter
-        navigate(`/edit-employee/${id}`);
-    }
-
-    function removeEmployee(id) {
-        console.log(id);
-        deleteEmployee(id)
-            .then((response) => {
-                getAllEmployees();
             })
-            .catch(error => {
-                console.error(error);
-            });
-    }
+        }
+    },[id])
+    
 
-    return (
-        <div className="container">
-            <button className="btn btn-primary mb-2" onClick={addNewEmployee}>
-                Add Employee
-            </button>
+    const navigator=useNavigate();
+
+    function saveOrUpdateEmployee(e){
+        e.preventDefault();
+
+        if(validationForm()){
+            const employee={name,email,phoneNumber}
+            console.log(employee);
+
+            if(id){
+                updateEmployee(id,employee).then((response)=>{
+                    console.log(response.data);
+                    navigator('/employees');
+                }).catch(error=>{
+                    console.error(error)
+                })
+            }
+            else{
+                createEmployee(employee).then((response)=>{
+                    console.log(response.data)
+                    navigator('/employees')
+                }).catch(error=>{
+                    console.error(error)
+                })
+            }
             
-            <h2 className="text-center">List of Employees</h2>
-            <table className="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Employee Id</th>
-                        <th>Employee Name</th>
-                        <th>Employee Email</th>
-                        <th>Employee PhoneNumber</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {employees.map(employee => (
-                        <tr key={employee.id}>
-                            <td>{employee.id}</td>
-                            <td>{employee.name}</td>
-                            <td>{employee.email}</td>
-                            <td>{employee.phoneNumber}</td>
-                            <td>
-                                <button 
-                                    className="btn btn-info" 
-                                    onClick={() => updateEmployee(employee.id)}
-                                >
-                                    Update
-                                </button>
-                                <button 
-                                    className="btn btn-danger" 
-                                    onClick={() => removeEmployee(employee.id)}
-                                    style={{ marginLeft: '10px' }}
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-};
+        }
+    }
+       
+        
+    function validationForm(){
+        let valid=true;
+            //... we use spread operator to copy object into another object
+        const errorsCopy={...errors}
 
-export default ListEmployeeComponent;
+        if(name.trim()){
+            errorsCopy.name='';
+        }else{
+            errorsCopy.name='Name is required';
+            valid=false;
+        }
+        
+        if(email.trim()){
+            errorsCopy.email='';
+        }else{
+            errorsCopy.email='Email is required';
+            valid=false;
+        }
+        
+        if(phoneNumber.trim()){
+            errorsCopy.phoneNumber='';
+        }else{
+            errorsCopy.phoneNumber='phoneNumber is required';
+            valid=false;
+        }
+        setErrors(errorsCopy)
+        return valid;
+    }
+    function pageTitle(){
+        if(id){
+            return  <h2 className='text-center'>Update Employee</h2>
+        }
+        else{
+            return <h2 className='text-center'>Add Employee</h2>
+        }
+    }
+    return (
+        <div className='container'>
+            <br/> <br/>
+            <div className='row'>
+                <div className='card col-md-6 offset-md-3 offset-md-3'>
+                   {
+                    pageTitle()
+                   }
+                    <br/> <br/>
+                    <div className='card-body'>
+                        <form>
+                            <div className='form-group mb-2'>
+                                <label className='form-label'> Name: </label>
+                                <input
+                                type='text'
+                                placeholder="Enter your Name"
+                                name='(name)'
+                                value={name}
+                                className={`form-control ${ errors.name ?'is-invalid' :''}`}
+                                onChange={(e)=>setName(e.target.value)}>
+                                </input>
+                                {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                            </div>
+                            <div className='form-group mb-2'>
+                                <label className='form-label'> Email: </label>
+                                <input
+                                type='email'
+                                placeholder="Enter your Name"
+                                name='(email)'
+                                value={email}
+                                className={`form-control ${ errors.email ?'is-invalid' :''}`}
+                                onChange={(e)=>setemail(e.target.value)}>
+                                </input>
+                                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                            </div>
+                            <div className='form-group mb-2'>
+                                <label className='form-label'> PhoneNumber: </label>
+                                <input
+                                type='number'
+                                placeholder="Enter your PhoneNumber"
+                                name='(phoneNuber)'
+                                value={phoneNumber}
+                                className={`form-control ${ errors.phoneNumber ?'is-invalid' :''}`}
+                                onChange={(e)=>setPhoneNumber(e.target.value)}>
+                                </input>
+                                {errors.phoneNumber && <div className="invalid-feedback">{errors.phoneNumber}</div>}
+                            </div>
+                            <button className='btn btn-success' onClick={saveOrUpdateEmployee}>Submit</button>
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    )
+}
+export default EmployeeComponent
