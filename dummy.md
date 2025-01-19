@@ -1,73 +1,64 @@
-import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import axios from "axios";
-import { listEmployee } from "./Employeeservice";
+import React, { useState } from 'react'
+import { Box,Typography,TextField, Button } from '@mui/material'
+import LoginIcon from '@mui/icons-material/Login';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 
-//toast.configure();
-
-const Login = ({setAuth}) => {
-    const [username, usernameupdate] = useState('');
-    const [password, passwordupdate] = useState('');
-    const usenavigate=useNavigate();
-    const ProceedLogin= async(e)=>{
-        e.preventDefault();
-        try{
-            const response=await axios.fetch(`http://localhost:3000/users`); //?username=${username}&password=${password}
-            const users=await response.json();
-            // if(response.data.length>0){
-            //     toast.success('Login Successful');
-            //     console.log('done login')
-            //     setAuth(true);
-            //     usenavigate('/add-employee')
-            // }else{
-            //     toast.error('Invalid Credentials')
-            //     console.log('login failed')
-            // }
-
-            if(users){
-                setAuth(true);
-                usenavigate('/add-employee')
-            }else{
-                toast.error('Invalid Username and password');
-                console.log('invalid');
-            }
-            usernameupdate('');
-            passwordupdate('');
-        }catch(error){
-            console.error('Error logging in:' ,error);
-            toast.error('Failed tologin');
-        }
-    };
-
-   
+const Login = () => {
+    const [isSingup, setIsSingup]=useState(false);
+    //console.log(isSingup)
+    const [inputs, setInputs]=useState({
+       name:"", email:"", password:"" ,
+    })
+    const handleChange=(e)=>{
+      setInputs((prevState)=>({
+        ...prevState, 
+        [e.target.name]:e.target.value
+      }))
+    }
+    const handleSubmit=(e)=>{
+      //e.preventDefault() this ()-> to submit the new http request
+      e.preventDefault(); 
+      console.log(inputs);
+    }
+    const resetState=(e)=>{
+      setIsSingup(!isSingup);
+      setInputs({name:'',email:'',password:''});
+    }
     return (
-        <div className="row">
-            <div className="offset-lg-3 col-lg-6" style={{ marginTop: '100px' }}>
-                <form onSubmit={ProceedLogin} className="container">
-                    <div className="card">
-                        <div className="card-header">
-                            <h2>User Login</h2>
-                        </div>
-                        <div className="card-body">
-                            <div className="form-group">
-                                <label>User Name <span className="errmsg">*</span></label>
-                                <input value={username} onChange={e => usernameupdate(e.target.value)} className="form-control"></input>
-                            </div>
-                            <div className="form-group">
-                                <label>Password <span className="errmsg">*</span></label>
-                                <input type="password" value={password} onChange={e => passwordupdate(e.target.value)} className="form-control"></input>
-                            </div>
-                        </div>
-                        <div className="card-footer">
-                            <button type="submit" className="btn btn-primary">Login</button> |
-                            <Link className="btn btn-success"  to={'/register'}>New User</Link> 
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-}
+      <div>
+          <form onSubmit={handleSubmit}>
+              <Box display="flex" flexDirection={"column"} maxWidth={400} 
+              alignItems="center" justifyContent={'center'} margin='auto' marginTop={5} padding={3}
+              borderRadius={5} boxShadow={'5px 5px 10px #ccc'} sx={{":hover":{
+                  boxShadow:'10px 10px 20px #ccc'  }}}>
+            
+                {/* Here in the below line we add the condition for Login page and signup page Greetings to display and rendered accordingly   */}
+                  <Typography variant='h3' padding={3} textAlign="center">{isSingup ? "Get Ready Prodaptians" : "Bonjur Prodaptians"}</Typography> 
 
-export default Login;
+                        {/* Here in the below line we add the condition for Login page and signup page Fields to display and rendered accordingly   */}
+                      {isSingup && <TextField  value={inputs.name} type={'text'} name="name" 
+                      onChange={handleChange}
+                      variant='outlined' placeholder='Name' margin='normal'></TextField>}
+
+                        <TextField type={'email'} name="email" value={inputs.email} 
+                        onChange={handleChange}
+                        variant='outlined' placeholder='Email' margin='normal'></TextField>
+
+                        <TextField type={'password'} name="password" value={inputs.password}
+                        onChange={handleChange}
+                        variant='outlined' placeholder='Password' margin='normal'></TextField>
+                      
+                      {/* Here in the below line we add the condition for Login page and signup page Buttons to display and rendered accordingly   */}
+                      <Button endIcon={isSingup ? <HowToRegIcon/>: <LoginIcon/>}
+                      type="submit" sx={{marginTop:3, borderRadius:3}}  variant='contained' color='warning'>{isSingup? "New Register" : "Login "}</Button>
+
+                      {/* Here in the below line we add the condition for Login page and signup page text to display and rendered accordingly */}
+                      <Button endIcon={isSingup ? <LoginIcon/>:<HowToRegIcon/>}
+                      onClick={resetState}sx={{marginTop:3, borderRadius:3}} > Change To {isSingup?"Login":"Signup"}</Button>
+              </Box>
+          </form>
+      </div>
+    )
+  } 
+
+export default Login
