@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { Box,Typography,TextField, Button } from '@mui/material'
 import LoginIcon from '@mui/icons-material/Login';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate=useNavigate();
     const [isSingup, setIsSingup]=useState(false);
     //console.log(isSingup)
     const [inputs, setInputs]=useState({
@@ -19,6 +21,7 @@ const Login = () => {
       //e.preventDefault() this ()-> to submit the new http request
       e.preventDefault(); 
       console.log(inputs);
+      navigate('/dashboard');
     }
     const resetState=(e)=>{
       setIsSingup(!isSingup);
